@@ -25,7 +25,6 @@ w <- st_read("data/vectors/waters.gpkg") %>%
   filter(area > 100000) %>% 
   st_crop(r)
 
-
 p <- st_read("data/coordinates/combined_coords.gpkg") %>% 
   st_transform(crs = st_crs(r)) %>% 
   mutate(Study_design = ifelse(startsWith(site, "MAL"), 1, NA),
@@ -36,18 +35,6 @@ p <- st_read("data/coordinates/combined_coords.gpkg") %>%
          Study_design = ifelse(startsWith(site, "K"), 5, Study_design)) %>% 
   mutate(Study_design = factor(Study_design)) %>% 
   st_crop(st_bbox(r))
-
-ggplot() +
-  geom_spatraster(data = r, maxcell = 100000) +
-  scale_fill_gradientn(colours = diverge_hcl(n = 100,  h = c(1000, 500), c = 100,
-                                             l = c(70, 50), power = 1.5, rev = T),
-                       na.value = "white") +
-  scale_y_continuous(expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 0)) +
-  theme_light() +
-  geom_sf(data = p, aes(color = Study_design, group = Study_design), size = 1) +
-  geom_sf(data = w, color = "lightblue", fill = "lightblue")
-
 
 ggplot() +
   geom_spatraster(data = r, maxcell = 500000) +
@@ -69,15 +56,7 @@ ggplot(data = world) +
            crs = st_crs(p))
 
 
-
-
-
-sbbox <- st_bbox(p %>% st_buffer(1000))
-names(sbbox) <- c("left", "bottom", "right", "top")
-register_google(key = "AIzaSyArVUCS71C5Eo73J4vEM2NbS5uMvNIMr_M")
-sq_map <- get_map(location = sbbox, zoom=11, maptype = 'terrain-background', source = 'stamen')
-
-
+#######################################################
 
 d <- bind_rows(read_csv("../MICROCLIMATES/output/KIL/tomst_data_cleaned.csv") %>% 
                  rename(probl = error_tomst) %>% 
