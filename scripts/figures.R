@@ -2,10 +2,10 @@ library(tidyverse)
 library(lubridate)
 library(zoo)
 library(patchwork)
+library(terra)
 library(tidyterra, lib.loc = "/projappl/project_2003061/Rpackages/")
 library(viridis)
 library(colorspace)
-library(terra)
 library(parallel)
 library(sf)
 
@@ -205,7 +205,7 @@ gg2 <- d %>%
   ggplot(aes(x = date)) +
   geom_ribbon(aes(ymax=Tmax, ymin=Tmin), fill="#227988",alpha=.6) +
   geom_line(aes(y = Tmean)) +
-  theme_bw() + ylab("Air temperature") + xlab("Date") +
+  theme_bw() + ylab("Near-surface air temperature") + xlab("Date") +
   ylim(-36, 42)
 
 gg3 <- d %>% 
@@ -222,6 +222,7 @@ gg3 <- d %>%
   ylim(0, 62)
 
 gg1 / gg2 / gg3
+ggsave("visuals/time_series.pdf", width = 13, height = 7, units = "in")
 
 
 ###########################################################################
@@ -232,45 +233,93 @@ list.files("output/predictions/")
 r <- rast("output/predictions/T3_GDD3.tif")
 gg1 <- ggplot() +
   geom_spatraster(data = r, maxcell = 1000000) +
-  scale_fill_gradientn(colours = diverge_hsv(n = 100), na.value = "white") +
+  scale_fill_gradientn(colours = diverge_hsv(n = 100, v = 0.7, s = 1.3), na.value = "white",
+                       limits = c(681, 1310)) +
   ggtitle("T3_GDD3") +
   scale_y_continuous(expand = c(0, 0)) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_light()
+r2 <- crop(r, ext(492000, 495000, 7660000, 7663000))
+gg12 <- ggplot() +
+  geom_spatraster(data = r2, maxcell = 100000) +
+  scale_fill_gradientn(colours = diverge_hsv(n = 100, v = 0.7, s = 1.3), na.value = "white",
+                       limits = c(681, 1310), guide = "none") +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void()
 
 r <- rast("output/predictions/T3_max.tif")
 gg2 <- ggplot() +
   geom_spatraster(data = r, maxcell = 1000000) +
   scale_fill_gradientn(colours = heat_hcl(n = 100,  h = c(0, 90), c = c(80, 30),
                                           l = c(30, 90), power = c(1/5, 1.5), rev = T), 
-                       na.value = "white") +
+                       na.value = "white",
+                       limits = c(20.28, 34.90)) +
   ggtitle("T3_max") +
   scale_y_continuous(expand = c(0, 0)) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_light()
+r2 <- crop(r, ext(492000, 495000, 7660000, 7663000))
+gg22 <- ggplot() +
+  geom_spatraster(data = r2, maxcell = 100000) +
+  scale_fill_gradientn(colours = heat_hcl(n = 100,  h = c(0, 90), c = c(80, 30),
+                                          l = c(30, 90), power = c(1/5, 1.5), rev = T), 
+                       na.value = "white",
+                       limits = c(20.28, 34.90), guide = "none") +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void()
+
 
 r <- rast("output/predictions/T1_FDD.tif")
 gg3 <- ggplot() +
   geom_spatraster(data = r, maxcell = 1000000) +
   scale_fill_gradientn(colours = heat_hcl(n = 100,  h = c(340, 243), c = c(24, 63),
                                           l = c(77, 43), power = 4, rev = T), 
-                       na.value = "white") +
+                       na.value = "white",
+                       limits = c(-1156.82, -38.79)) +
   ggtitle("T1_FDD") +
   scale_y_continuous(expand = c(0, 0)) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_light()
+r2 <- crop(r, ext(492000, 495000, 7660000, 7663000))
+gg32 <- ggplot() +
+  geom_spatraster(data = r2, maxcell = 100000) +
+  scale_fill_gradientn(colours = heat_hcl(n = 100,  h = c(340, 243), c = c(24, 63),
+                                          l = c(77, 43), power = 4, rev = T), 
+                       na.value = "white",
+                       limits = c(-1156.82, -38.79), guide = "none") +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void()
+
 
 r <- rast("output/predictions/moist_mean_summer.tif")
 gg4 <- ggplot() +
   geom_spatraster(data = r, maxcell = 1000000) +
   scale_fill_gradientn(colours = diverge_hcl(n = 100,  h = c(230, 50), c = 150,
                                              l = c(70, 40), power = 1.5, rev = T),
-                       na.value = "white") +
+                       na.value = "white",
+                       limits = c(12, 52.77)) +
   ggtitle("moist_mean_summer") +
   scale_y_continuous(expand = c(0, 0)) +
   scale_x_continuous(expand = c(0, 0)) +
   theme_light()
+r2 <- crop(r, ext(492000, 495000, 7660000, 7663000))
+gg42 <- ggplot() +
+  geom_spatraster(data = r2, maxcell = 100000) +
+  scale_fill_gradientn(colours = diverge_hcl(n = 100,  h = c(230, 50), c = 150,
+                                             l = c(70, 40), power = 1.5, rev = T),
+                       na.value = "white",
+                       limits = c(12, 52.77), guide = "none") +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  theme_void()
+
 
 gg <- (gg1  + gg2) / (gg3 + gg4)
 gg
 ggsave("visuals/maps.pdf", device = "pdf", height = 12, width = 12)
+gg2 <- (gg12  + gg22) / (gg32 + gg42)
+gg2
+ggsave("visuals/zoom_maps.pdf", device = "pdf", height = 8, width = 8)
